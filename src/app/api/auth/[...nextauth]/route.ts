@@ -62,7 +62,7 @@ export const authOptions: NextAuthOptions = {
       if (user && (user as any).role) {
         token.role = (user as any).role;
       } else if (token.email) {
-        // Hole User aus DB, falls user-Objekt nicht vorhanden (z.B. bei Session-Refresh)
+        
         const client = await clientPromise;
         const db = client.db();
         const dbUser = await db.collection('users').findOne({ email: token.email });
