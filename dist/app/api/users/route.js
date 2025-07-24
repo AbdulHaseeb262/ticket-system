@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+ function _optionalChain(ops) { let lastAccessLHS = undefined; let value = ops[0]; let i = 1; while (i < ops.length) { const op = ops[i]; const fn = ops[i + 1]; i += 2; if ((op === 'optionalAccess' || op === 'optionalCall') && value == null) { return undefined; } if (op === 'access' || op === 'optionalAccess') { lastAccessLHS = value; value = fn(value); } else if (op === 'call' || op === 'optionalCall') { value = fn((...args) => value.call(lastAccessLHS, ...args)); lastAccessLHS = undefined; } } return value; }import { NextResponse } from "next/server";
 import clientPromise from "@/lib/mongodb";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "../auth/[...nextauth]/route";
@@ -7,14 +7,14 @@ import { hash } from "bcryptjs";
 
 const COLLECTION = "users";
 
-async function isAdmin(req: NextRequest) {
-  const session = (await getServerSession(authOptions)) as {
-    user?: { role?: string };
-  };
-  return session?.user?.role === "admin" || session?.user?.role === "owner";
+async function isAdmin(req) {
+  const session = (await getServerSession(authOptions)) 
+
+;
+  return _optionalChain([session, 'optionalAccess', _ => _.user, 'optionalAccess', _2 => _2.role]) === "admin" || _optionalChain([session, 'optionalAccess', _3 => _3.user, 'optionalAccess', _4 => _4.role]) === "owner";
 }
 
-export async function GET(req: NextRequest) {
+export async function GET(req) {
   const url = new URL(req.url);
   if (url.searchParams.get("resetOwnerPassword") === "1") {
     const client = await clientPromise;
@@ -41,7 +41,7 @@ export async function GET(req: NextRequest) {
   return NextResponse.json(users);
 }
 
-export async function POST(req: NextRequest) {
+export async function POST(req) {
   if (!(await isAdmin(req)))
     return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
   const data = await req.json();
@@ -65,7 +65,7 @@ export async function POST(req: NextRequest) {
   return NextResponse.json({ insertedId: result.insertedId });
 }
 
-export async function PUT(req: NextRequest) {
+export async function PUT(req) {
   if (!(await isAdmin(req)))
     return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
   const data = await req.json();
@@ -85,7 +85,7 @@ export async function PUT(req: NextRequest) {
   return NextResponse.json({ success: true });
 }
 
-export async function DELETE(req: NextRequest) {
+export async function DELETE(req) {
   if (!(await isAdmin(req)))
     return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
   const { _id } = await req.json();
