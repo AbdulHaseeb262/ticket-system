@@ -1,3 +1,4 @@
+"use client";
 import { useState } from 'react';
 import { Box, Button, Container, TextField, Typography, Alert, MenuItem, Select, InputLabel, FormControl } from '@mui/material';
 
@@ -60,4 +61,4 @@ export default function InvitePage() {
       </Box>
     </Container>
   );
-} 
+}
